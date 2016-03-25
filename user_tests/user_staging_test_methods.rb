@@ -3,9 +3,33 @@ require 'selenium-webdriver'
 require "google/api_client"
 require "google_drive"
 gem "chromedriver-helper"
+require 'rmagick'
+
 
 # ---- BEGIN NEW ACCOUNT SETUP METHODS ----
 # ACCOUNT INFO - generates name & email based on date & time
+
+
+class Session
+    def initialize
+        @date = Time.new.strftime("%d%b%Y")
+        @time = time=Time.new.strftime("%Hh%Mm%Ss")
+        @date_time = date_time=date+time
+        @name =  "QA #{date_time}"
+        @email = "johns.staging.tester#{date_time}@gmail.com"
+    end
+
+    def log
+        puts "\nSESSION CREATED\n Date: #{date} \n Time: #{time} \n Name: #{name} \n Email: #{email}"
+    end
+
+    attr_reader :date, :time, :date_time, :name, :email
+end
+
+a = Session.new
+a.log
+
+
 def account_setup()
     date_time = [Time.new.strftime("%d%b%Y"),Time.new.strftime("%Hh%Mm%Ss")]
     sess_acc = {"date" => date_time[0],"time" => date_time[1], "name" => "QA " + date_time[0] + date_time[1], "email" => "johns.staging.tester+" + date_time[0] + date_time[1] + "@gmail.com"}
@@ -41,10 +65,8 @@ end
 # SCREENSHOTS - Takes & saves
 def screenshot(driver,sess_time,shot_num,descr)
     filename = "shot-#{shot_num}-#{driver.current_url.sub("https://format-staging.com/","").gsub("/","-")}-(#{descr})-#{sess_time}.png"
-    # driver.save_screenshot ("shot-#{shot_num}-#{driver.current_url.sub("https://format-staging.com/","").gsub("/","-")}-(#{descr})-#{sess_time}.png")
-    driver.save_screenshot(filename)
     # driver.save_screenshot(filename)
-    # puts (" 📸 Shot #{shot_num} (#{driver.current_url})")
+
     puts (" 📸  #{filename}")
-    return 1
+    return 
 end
