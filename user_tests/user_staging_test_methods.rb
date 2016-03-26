@@ -19,7 +19,7 @@ class Session
     end
 
     def log
-        puts "\nSESSION CREATED\n Date: #{date} \n Time: #{time} \n Name: #{name} \n Email: #{email}"
+        puts "\nSESSION\n  #{date} #{time} \n  Name: #{name} \n  Email: #{email}\n\n"
     end
     attr_reader :date, :time, :date_time, :name, :email
 end
@@ -50,9 +50,35 @@ def setup()
 end
 # ---- END NEW ACCOUNT SETUP METHODS ----
 
+
 # SCREENSHOTS - Takes & saves
 def screenshot(driver,sess_date_time,shot_num,descr)
-    filename = "shot-#{shot_num}-#{driver.current_url.sub("https://format-staging.com/","").gsub("/","-")}-(#{descr})-#{sess_date_time}.png"
+    actual_url = driver.current_url
+    cleaned_url = "#{driver.current_url.sub("https://format-staging.com/","").gsub("/","-")}"
+    filename = "shot-#{shot_num}-#{cleaned_url}-(#{descr})-#{sess_date_time}.png"
     driver.save_screenshot(filename)
-    puts (" 📸  #{filename}")
+    # puts (" 📸  #{filename}")
+
+    puts "\STEP #{shot_num} \n  #{actual_url} - #{descr}"
+
+# diff checking
+    masters = Dir["./masters/*"]
+    shot =  Magick::Image.read(filename)
+    mastershot =  Magick::Image.read(masters[shot_num - 1])
+
+    puts "  📸  #{filename} \n  🖼  #{masters[shot_num - 1].sub("./masters/","")}"
+    diff_img, diff_metric  = shot[0].compare_channel( mastershot[0], Magick::MeanSquaredErrorMetric )
+    diff_metric = diff_metric*100
+
+    if diff_metric >= 10 # % 
+        puts " Diff: #{diff_metric.round(2)}% ⚠"
+        diff_img.write("DIFF-#{filename}")
+        puts "\n    Diff image saved! 💾"    
+    else
+        puts "  Diff: #{diff_metric.round(2)}% 👍" 
+    end
+
+    # Step separator
+    puts "\n"
+
 end

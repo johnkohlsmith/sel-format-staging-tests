@@ -11,7 +11,7 @@ driver.manage.timeouts.implicit_wait = 10 # seconds
 wait = Selenium::WebDriver::Wait.new(:timeout => 10) # seconds
 
 #maybe add URLs to array?
-# urls = ["http://www.format-staging.com/try",""]
+masters = Dir["MASTER*"]
 
 $shot_num = 0
 sess = Session.new
@@ -25,12 +25,9 @@ driver.manage.window.resize_to(1280, 800)
 driver.get "http://www.format-staging.com/try"
 
 # Shot 1
-puts "\n Screenshots..."
 $shot_num += 1
 descr = "theme-style-selection"
 screenshot(driver,sess.date_time,$shot_num,descr)
-# driver.save_screenshot("lskadjflsf.png")
-
 
 # Chooses 1st option (Horizon Left) https://format-staging.com/site/dashboard
 element = driver.find_element(:css, "a.browser:nth-child(1)").click
