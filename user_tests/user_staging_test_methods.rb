@@ -56,26 +56,27 @@ def screenshot(driver,sess_date_time,shot_num,descr)
     actual_url = driver.current_url
     cleaned_url = "#{driver.current_url.sub("https://format-staging.com/","").gsub("/","-")}"
     filename = "shot-#{shot_num}-#{cleaned_url}-(#{descr})-#{sess_date_time}.png"
-    driver.save_screenshot(filename)
+    driver.save_screenshot("./session_shots/#{filename}")
     # puts (" 📸  #{filename}")
 
     puts "\STEP #{shot_num} \n  #{actual_url} - #{descr}"
 
 # diff checking
     masters = Dir["./masters/*"]
-    shot =  Magick::Image.read(filename)
+    shot =  Magick::Image.read("./session_shots/#{filename}")
     mastershot =  Magick::Image.read(masters[shot_num - 1])
 
     puts "  📸  #{filename} \n  🖼  #{masters[shot_num - 1].sub("./masters/","")}"
     diff_img, diff_metric  = shot[0].compare_channel( mastershot[0], Magick::MeanSquaredErrorMetric )
-    diff_metric = diff_metric*100
+    
+    diff_metric = diff_metric * 10000
 
     if diff_metric >= 10 # % 
-        puts " Diff: #{diff_metric.round(2)}% ⚠"
-        diff_img.write("DIFF-#{filename}")
-        puts "\n    Diff image saved! 💾"    
+        puts "  Diff: #{(diff_metric).round(2)}% 😱"
+        diff_img.write("./session_shots/DIFF-#{filename}")
+        puts "  Diff image saved 💾"    
     else
-        puts "  Diff: #{diff_metric.round(2)}% 👍" 
+        puts "  Diff: #{(diff_metric).round(2)}% 👍" 
     end
 
     # Step separator
