@@ -3,6 +3,7 @@ require 'selenium-webdriver'
 require "google/api_client"
 require "google_drive"
 require 'rmagick'
+include Magick
 gem "chromedriver-helper"
 
 # ---- BEGIN NEW ACCOUNT SETUP METHODS ----
@@ -65,18 +66,28 @@ def screenshot(driver,sess_date_time,shot_num,descr)
     masters = Dir["./masters/*"]
     shot =  Magick::Image.read("./session_shots/#{filename}")
     mastershot =  Magick::Image.read(masters[shot_num - 1])
-
     puts "  📸  #{filename} \n  🖼  #{masters[shot_num - 1].sub("./masters/","")}"
-    diff_img, diff_metric  = shot[0].compare_channel( mastershot[0], Magick::MeanSquaredErrorMetric )
-    
-    diff_metric = diff_metric * 10000
-
+    diff_img, diff_metric  = shot[0].compare_channel( mastershot[0], Magick::MeanSquaredErrorMetric )    
+    diff_metric = (diff_metric * 10000).round(2)
     if diff_metric >= 10 # % 
-        puts "  Diff: #{(diff_metric).round(2)}% 😱"
+        puts "  Diff: #{(diff_metric)}% 😱"
+        diff_message = "  URL   #{actual_url}  \n  State  #{descr}  \n  Diff   #{diff_metric}%  "
+        diff_shot_info = Draw.new
+        diff_shot_info.annotate(diff_img,0,0,10,10,diff_message) {
+            self.font_family = 'Helvetica'
+            self.fill = '#ebcb8b'
+            self.stroke = 'transparent' # can be 'transparent'
+            self.stroke_width = 2
+            self.undercolor = 'rgb(43,48,59)'
+            self.pointsize = 20
+            self.font_weight = 800
+            self.gravity = SouthWestGravity
+        }
+        # img[0].write("printed-text.png")
         diff_img.write("./session_shots/DIFF-#{filename}")
-        puts "  Diff image saved 💾"    
+        puts "  Diff image saved 💾"
     else
-        puts "  Diff: #{(diff_metric).round(2)}% 👍" 
+        puts "  Diff: #{(diff_metric)}% 👍" 
     end
 
     # Step separator
