@@ -14,7 +14,7 @@ wait = Selenium::WebDriver::Wait.new(:timeout => 10) # seconds
 masters = Dir["MASTER*"]
 
 $shot_num = 0
-sess = Session.new
+sess = Session.new("in-app","regular")
 sess.log
 
 # ---- BEGIN TESTING ---- #
@@ -33,7 +33,11 @@ screenshot(driver,sess.date_time,$shot_num,descr)
 element = driver.find_element(:css, "a.browser:nth-child(1)").click
 
 # Waits for Registration modal to appear
-element = wait.until { driver.find_element(:id => "name") }
+# element = wait.until { driver.find_element(:id => "name") }
+element = wait.until { driver.find_element(:class => "_4ORMAT_overlay").css_value("opacity") == "0.55" }
+# element = wait.until { driver.find_element(:class => "ModalMessage_container").css_value("transform: scale(1)") }
+
+
 # Shot 2
 $shot_num += 1
 descr = "blank-reg-form"
@@ -53,8 +57,9 @@ screenshot(driver,sess.date_time,$shot_num,descr)
 
 element.submit
 
-# Waits until sign up form dissappears
+# Waits until sign up form dissappears MAKE THIS FASTER
 element = wait.until {driver.find_elements(:class, "example_user_signup_form").size == 0}
+
 # Shot 4
 $shot_num += 1
 descr = "dash-home"
